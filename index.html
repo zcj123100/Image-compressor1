@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Image Compressor | Fast Online Image Optimizer</title>
+    <!-- 预连接字体源，加速加载，避免页面闪烁 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 内联CSS，减少外部请求，极致提速 */
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#f8fafc;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:15px;color:#1e293b}
+        .container{width:100%;max-width:850px;margin:0 auto;padding:15px}
+        header{text-align:center;margin-bottom:30px;background:#fff;border-radius:12px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.05)}
+        h1{font-size:2.2rem;font-weight:700;color:#0f172a;margin-bottom:8px}
+        .subtitle{font-size:1rem;color:#64748b;max-width:550px;margin:0 auto}
+        .main-card{background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.06);padding:30px;margin-bottom:30px;width:100%}
+        .upload-area{border:2px dashed #3b82f6;border-radius:12px;padding:45px 15px;text-align:center;cursor:pointer;transition:all 0.2s ease;background:#f8fafc;margin-bottom:30px}
+        .upload-area:hover,.upload-area.dragover{background:#eff6ff;border-color:#1d4ed8}
+        .upload-icon{font-size:3rem;color:#3b82f6;margin-bottom:15px}
+        .upload-title{font-size:1.5rem;font-weight:600;color:#0f172a;margin-bottom:8px}
+        .upload-text{font-size:0.95rem;color:#64748b;margin-bottom:15px}
+        .file-input{display:none}
+        .btn{display:inline-block;padding:12px 28px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:all 0.2s ease}
+        .btn:hover{background:#1d4ed8;transform:translateY(-2px)}
+        .btn:active{transform:translateY(0)}
+        .control-group{margin-bottom:25px}
+        .control-label{display:flex;justify-content:space-between;margin-bottom:10px;font-weight:600;color:#0f172a}
+        .quality-value{color:#3b82f6}
+        .slider{width:100%;height:8px;border-radius:4px;background:#e2e8f0;outline:none;-webkit-appearance:none}
+        .slider::-webkit-slider-thumb{width:20px;height:20px;border-radius:50%;background:#3b82f6;cursor:pointer;-webkit-appearance:none}
+        .preview-section{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px}
+        @media(max-width:768px){.preview-section{grid-template-columns:1fr}}
+        .preview-card{background:#f8fafc;border-radius:12px;padding:20px;text-align:center}
+        .preview-title{font-size:1.2rem;font-weight:600;margin-bottom:15px;color:#0f172a}
+        .preview-img{max-width:100%;max-height:250px;border-radius:8px;background:#fff;padding:8px;margin-bottom:15px;object-fit:contain}
+        .file-info{font-size:0.9rem;color:#475569;background:#fff;padding:10px;border-radius:6px}
+        .file-size{font-weight:700;color:#0f172a}
+        .download-section{text-align:center;padding:25px;background:#f8fafc;border-radius:12px;margin-bottom:15px}
+        .download-btn{background:#10b981;font-size:1.1rem;padding:14px 35px}
+        .download-btn:hover{background:#059669}
+        .download-btn:disabled{background:#cbd5e1;cursor:not-allowed;transform:none}
+        /* 广告位样式，预留位置，不影响加载 */
+        .ad-space{width:100%;margin:25px 0;text-align:center;min-height:90px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:0.9rem}
+        footer{text-align:center;padding:20px;color:#64748b;font-size:0.9rem;background:#fff;border-radius:12px;margin-top:auto}
+        .hidden{display:none}
+        .loading{opacity:0.7;pointer-events:none}
+        .loading::after{content:"";position:absolute;top:50%;left:50%;width:25px;height:25px;margin:-12.5px 0 0 -12.5px;border:2px solid #3b82f6;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .badge-group{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+        .badge{background:#eff6ff;color:#3b82f6;padding:6px 12px;border-radius:20px;font-size:0.85rem;font-weight:600}
+        /* 打赏链接样式，超轻量不拖速 */
+        .donate-link{margin-top:10px;color:#64748b}
+        .donate-link a{color:#3b82f6;text-decoration:none}
+        .donate-link a:hover{text-decoration:underline}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Fast Image Compressor</h1>
+            <p class="subtitle">Free online image compressor, compress JPG/PNG/WebP quickly, no upload, no watermark</p>
+            <div class="badge-group">
+                <span class="badge">JPG</span>
+                <span class="badge">PNG</span>
+                <span class="badge">WebP</span>
+            </div>
+        </header>
+
+        <!-- 广告位1：顶部横幅，可替换为Ezoic/广告代码 -->
+        <div class="ad-space">Ad Placement 1</div>
+
+        <div class="main-card">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <h2 class="upload-title">Drop Image Here</h2>
+                <p class="upload-text">Or click to select a file (Max 10MB)</p>
+                <button class="btn" id="selectBtn">Select Image</button>
+                <input type="file" id="fileInput" class="file-input" accept="image/jpeg,image/png,image/webp">
+            </div>
+
+            <div class="control-group">
+                <div class="control-label">
+                    <span>Compression Quality</span>
+                    <span class="quality-value" id="qualityValue">80%</span>
+                </div>
+                <input type="range" min="10" max="100" value="80" class="slider" id="qualitySlider">
+                <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:#94a3b8;margin-top:5px">
+                    <span>Smaller Size</span>
+                    <span>Better Quality</span>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-card">
+                    <h3 class="preview-title">Original Image</h3>
+                    <img id="originalPreview" class="preview-img hidden" alt="Original">
+                    <div id="originalPlaceholder" class="preview-img">No Image</div>
+                    <div class="file-info">Size: <span class="file-size" id="originalSize">0 KB</span></div>
+                </div>
+                <div class="preview-card">
+                    <h3 class="preview-title">Compressed Image</h3>
+                    <img id="compressedPreview" class="preview-img hidden" alt="Compressed">
+                    <div id="compressedPlaceholder" class="preview-img">Waiting...</div>
+                    <div class="file-info">Size: <span class="file-size" id="compressedSize">0 KB</span>
+                        <div style="margin-top:5px;font-size:0.85rem;color:#3b82f6" id="savings"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="download-section">
+                <button class="btn download-btn" id="downloadBtn" disabled>Download Compressed Image</button>
+                <p style="margin-top:10px;font-size:0.85rem;color:#64748b">All processing in your browser, no data sent to server</p>
+            </div>
+        </div>
+
+        <!-- 广告位2：中部矩形，可替换为Ezoic/广告代码 -->
+        <div class="ad-space">Ad Placement 2</div>
+
+        <footer>
+            <p>© 2026 Fast Image Compressor | Free & Secure</p>
+            <!-- 打赏位：替换为你的BuyMeACoffee链接即可 -->
+            <p class="donate-link">
+                <a href="https://www.buymeacoffee.com/你的用户名" target="_blank">☕ Support this tool → Buy Me a Coffee</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 精简JS，极致优化运行速度，无冗余代码
+        const fileInput=document.getElementById('fileInput');
+        const uploadArea=document.getElementById('uploadArea');
+        const selectBtn=document.getElementById('selectBtn');
+        const qualitySlider=document.getElementById('qualitySlider');
+        const qualityValue=document.getElementById('qualityValue');
+        const originalPreview=document.getElementById('originalPreview');
+        const compressedPreview=document.getElementById('compressedPreview');
+        const originalPlaceholder=document.getElementById('originalPlaceholder');
+        const compressedPlaceholder=document.getElementById('compressedPlaceholder');
+        const originalSize=document.getElementById('originalSize');
+        const compressedSize=document.getElementById('compressedSize');
+        const savings=document.getElementById('savings');
+        const downloadBtn=document.getElementById('downloadBtn');
+
+        let originalImg,originalFile,compressedBlob;
+
+        // 绑定选择文件事件
+        selectBtn.addEventListener('click',()=>fileInput.click());
+        fileInput.addEventListener('change',handleFile);
+
+        // 绑定拖拽上传事件
+        uploadArea.addEventListener('dragover',(e)=>{e.preventDefault();uploadArea.classList.add('dragover')});
+        uploadArea.addEventListener('dragleave',()=>uploadArea.classList.remove('dragover'));
+        uploadArea.addEventListener('drop',(e)=>{
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+        });
+
+        // 绑定质量滑块事件
+        qualitySlider.addEventListener('input',()=>{
+            qualityValue.textContent=`${qualitySlider.value}%`;
+            if(originalImg) compressImg();
+        });
+
+        // 处理上传文件
+        function handleFile(e){
+            const file=e.target.files?e.target.files[0]:e;
+            // 校验文件类型和大小
+            if(!file.type.startsWith('image/')||file.size>10*1024*1024){
+                alert('Please upload valid image (JPG/PNG/WebP) within 10MB');
+                return;
+            }
+            originalFile=file;
+            originalSize.textContent=formatSize(file.size);
+            // 读取文件并渲染预览
+            const reader=new FileReader();
+            reader.onload=(e)=>{
+                originalImg=new Image();
+                originalImg.onload=()=>{
+                    originalPreview.src=e.target.result;
+                    originalPreview.classList.remove('hidden');
+                    originalPlaceholder.style.display='none';
+                    compressImg();
+                };
+                originalImg.src=e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 核心压缩逻辑，Canvas本地处理，不依赖服务器
+        function compressImg(){
+            compressedPlaceholder.classList.add('loading');
+            downloadBtn.disabled=true;
+            downloadBtn.textContent='Compressing...';
+
+            const canvas=document.createElement('canvas');
+            const ctx=canvas.getContext('2d');
+            let width=originalImg.width,height=originalImg.height;
+            const maxW=800;
+            // 限制最大宽度，平衡压缩速度和画质
+            if(width>maxW){height=(maxW/width)*height;width=maxW}
+            canvas.width=width;canvas.height=height;
+            ctx.drawImage(originalImg,0,0,width,height);
+
+            // 按质量压缩，保持原格式
+            canvas.toBlob((blob)=>{
+                compressedBlob=blob;
+                compressedSize.textContent=formatSize(blob.size);
+                // 计算压缩率
+                const savePercent=(((originalFile.size-blob.size)/originalFile.size)*100).toFixed(1);
+                savings.textContent=`Saved ${savePercent}%`;
+                // 渲染压缩后预览
+                compressedPreview.src=URL.createObjectURL(blob);
+                compressedPreview.classList.remove('hidden');
+                compressedPlaceholder.classList.remove('loading');
+                compressedPlaceholder.style.display='none';
+                // 启用下载按钮
+                downloadBtn.disabled=false;
+                downloadBtn.textContent='Download Compressed Image';
+            },originalFile.type,qualitySlider.value/100);
+        }
+
+        // 绑定下载事件
+        downloadBtn.addEventListener('click',()=>{
+            if(!compressedBlob) return;
+            const a=document.createElement('a');
+            a.href=URL.createObjectURL(compressedBlob);
+            // 生成下载文件名，保留原格式
+            a.download=originalFile.name.replace(/\.\w+$/,'')+'_compressed.'+originalFile.name.split('.').pop();
+            a.click();
+            // 释放URL资源
+            setTimeout(()=>URL.revokeObjectURL(a.href),100);
+        });
+
+        // 文件大小格式化工具
+        function formatSize(bytes){
+            if(bytes<1024) return bytes+' B';
+            else if(bytes<1048576) return (bytes/1024).toFixed(2)+' KB';
+            else return (bytes/1048576).toFixed(2)+' MB';
+        }
+
+        // 初始化滑块显示
+        qualityValue.textContent=`${qualitySlider.value}%`;
+    </script>
+</body>
+</html>
